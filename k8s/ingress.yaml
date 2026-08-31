@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jardim-dos-sorrisos-http
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: "web"
+spec:
+  rules:
+    - host: jardim-dos-sorrisos.201.23.17.249.sslip.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: jardim-dos-sorrisos-svc
+                port:
+                  number: 80
+    - host: jardim-dos-sorrisos.beloni.dev.br
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: jardim-dos-sorrisos-svc
+                port:
+                  number: 80

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#fff8ec" />
+    <meta name="description" content="Um jogo acolhedor de cuidados para crianças pequenas." />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <title>Jardim dos Sorrisos</title>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <button class="icon-button" id="sound-toggle" type="button" aria-label="Ativar ou desativar sons">🔈</button>
+        <div class="brand-mark" aria-label="Jardim dos Sorrisos">🌼</div>
+        <button class="icon-button" id="parent-button" type="button" aria-label="Área dos responsáveis">♡</button>
+      </header>
+
+      <section class="screen screen-home" id="home-screen" aria-labelledby="welcome-title">
+        <div class="welcome-copy">
+          <p class="eyebrow">Bem-vindo ao</p>
+          <h1 id="welcome-title">Jardim dos<br /><span>Sorrisos</span></h1>
+          <p class="intro">Um lugar de carinho, cuidado e muitas brincadeiras!</p>
+        </div>
+
+        <div class="garden-scene" aria-label="Jardim colorido com a Dra. Luma e seus pacientes">
+          <div class="sun">☀️</div>
+          <div class="cloud cloud-one">☁️</div>
+          <div class="cloud cloud-two">☁️</div>
+          <div class="flower flower-one">🌷</div>
+          <div class="flower flower-two">🌻</div>
+          <div class="luma" aria-hidden="true">🐰<span>🩺</span></div>
+          <div class="grass grass-back"></div>
+          <div class="grass grass-front"></div>
+        </div>
+
+        <button class="primary-button" id="play-button" type="button">Brincar <span>→</span></button>
+        <p class="helper-text">Toque para começar</p>
+      </section>
+
+      <section class="screen screen-garden hidden" id="garden-screen" aria-labelledby="garden-title">
+        <div class="section-heading">
+          <p class="eyebrow">Escolha um amiguinho</p>
+          <h2 id="garden-title">Quem precisa de carinho?</h2>
+        </div>
+
+        <div class="patient-grid">
+          <button class="patient-card patient-dental" type="button" data-activity="wash">
+            <span class="patient-emoji">🐰</span>
+            <strong>Pipo</strong>
+            <span class="need-badge">🧼 Rostinho sujo</span>
+          </button>
+          <button class="patient-card patient-bath" type="button" data-activity="bath">
+            <span class="patient-emoji">🐱</span>
+            <strong>Mimi</strong>
+            <span class="need-badge">🛁 Banho</span>
+          </button>
+          <button class="patient-card patient-diaper" type="button" data-activity="diaper">
+            <span class="patient-emoji">🐻</span>
+            <strong>Toto</strong>
+            <span class="need-badge">🧷 Fralda</span>
+          </button>
+        </div>
+        <button class="back-button" id="garden-back" type="button">← Voltar</button>
+      </section>
+
+      <section class="screen screen-activity hidden" id="activity-screen" aria-labelledby="activity-title">
+        <div class="activity-header">
+          <button class="back-button" id="activity-back" type="button">← Jardim</button>
+          <div class="progress-dots" id="progress-dots" aria-label="Progresso da atividade"></div>
+        </div>
+
+        <div class="activity-copy">
+          <p class="eyebrow" id="activity-eyebrow">Cuidando do Pipo</p>
+          <h2 id="activity-title">Vamos lavar o rostinho do Pipo?</h2>
+          <p id="activity-instruction">Arraste o sabonete nas manchinhas.</p>
+        </div>
+
+        <div class="dental-board" id="dental-board" aria-label="Área para lavar o rostinho do Pipo">
+          <div class="face-stage">
+            <div class="rabbit-face" aria-label="Pipo com o rostinho sujo">
+              <img class="pipo-face-image" src="assets/pipo-face.png" alt="Rosto do coelhinho Pipo" />
+              <span class="rabbit-ear ear-left"></span>
+              <span class="rabbit-ear ear-right"></span>
+              <span class="rabbit-head"></span>
+              <span class="rabbit-eye eye-left"></span>
+              <span class="rabbit-eye eye-right"></span>
+              <span class="rabbit-cheek cheek-left"></span>
+              <span class="rabbit-cheek cheek-right"></span>
+              <span class="rabbit-nose"></span>
+              <span class="rabbit-mouth"></span>
+              <div class="dirt dirt-one" aria-hidden="true"></div>
+              <div class="dirt dirt-two" aria-hidden="true"></div>
+              <div class="dirt dirt-three" aria-hidden="true"></div>
+              <div class="dirt dirt-four" aria-hidden="true"></div>
+              <div class="soap soap-one" aria-hidden="true"></div>
+              <div class="soap soap-two" aria-hidden="true"></div>
+              <div class="soap soap-three" aria-hidden="true"></div>
+              <div class="soap soap-four" aria-hidden="true"></div>
+            </div>
+          </div>
+          <div class="sparkle sparkle-a">✦</div>
+          <div class="sparkle sparkle-b">✦</div>
+          <div class="soap-bar" id="soap-bar" role="button" tabindex="0" aria-label="Sabonete para lavar o rostinho">🧼</div>
+          <div class="dental-hose" id="dental-hose" role="button" tabindex="0" aria-label="Mangueirinha de água para enxaguar o rostinho">
+            <span class="hose-tube"></span><span class="hose-handle">◉</span><span class="water-drop drop-one">💧</span><span class="water-drop drop-two">💧</span><span class="water-drop drop-three">💧</span>
+          </div>
+        </div>
+
+        <div class="activity-actions" id="activity-actions"></div>
+      </section>
+
+      <section class="screen screen-complete hidden" id="complete-screen" aria-labelledby="complete-title">
+        <div class="confetti" aria-hidden="true">🌸 ✨ 🌼 ✨ 🌸</div>
+        <div class="complete-character">🐰</div>
+        <p class="eyebrow">Cuidado terminado!</p>
+        <h2 id="complete-title">Pipo está muito feliz!</h2>
+        <p>Você lavou o rostinho dele com muito carinho.</p>
+        <div class="reward">⭐ <span>Uma estrelinha de carinho</span></div>
+        <button class="primary-button" id="another-button" type="button">Cuidar de outro bichinho <span>→</span></button>
+      </section>
+    </main>
+    <div class="toast hidden" id="toast" role="status"></div>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

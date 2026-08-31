@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: jardim-dos-sorrisos
+  name: jardim-dos-sorrisos
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: jardim-dos-sorrisos
+  template:
+    metadata:
+      labels:
+        app: jardim-dos-sorrisos
+    spec:
+      containers:
+        - image: cbeloni/jardim-dos-sorrisos:amd64
+          imagePullPolicy: Always
+          name: jardim-dos-sorrisos
+          ports:
+            - containerPort: 80

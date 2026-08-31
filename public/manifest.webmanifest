@@ -1,0 +1,10 @@
+{
+  "name": "Jardim dos Sorrisos",
+  "short_name": "Jardim",
+  "lang": "pt-BR",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#fff8ec",
+  "theme_color": "#fff8ec",
+  "icons": []
+}
