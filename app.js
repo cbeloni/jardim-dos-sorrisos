@@ -28,6 +28,7 @@ let soundEnabled = true;
 
 function showScreen(name) {
   Object.entries(screens).forEach(([key, screen]) => screen.classList.toggle('hidden', key !== name));
+  document.body.classList.toggle('activity-mode', name === 'activity');
 }
 
 function makeProgress(total, current) {
@@ -63,6 +64,7 @@ const allDirt = () => document.querySelectorAll('.dirt');
 const allSoap = () => document.querySelectorAll('.soap');
 // Tempo para ensaboar ou enxaguar cada manchinha (fração por milissegundo).
 const TOOL_RATE = 1 / 1000;
+const DRAG_POINTER_OFFSET_Y = 18;
 const dirtRotations = ['-14deg', '16deg', '-8deg', '10deg'];
 
 function resetTool(tool) {
@@ -102,7 +104,7 @@ function startFaceWashActivity() {
 function moveSoapTo(clientX, clientY) {
   const boardRect = dentalBoard.getBoundingClientRect();
   const x = clientX - boardRect.left;
-  const y = clientY - boardRect.top;
+  const y = clientY - boardRect.top + DRAG_POINTER_OFFSET_Y;
   soapBar.style.left = `${x}px`;
   soapBar.style.top = `${y}px`;
   soapBar.style.bottom = 'auto';
@@ -112,7 +114,7 @@ function moveSoapTo(clientX, clientY) {
 function moveHoseTo(clientX, clientY) {
   const boardRect = dentalBoard.getBoundingClientRect();
   const x = clientX - boardRect.left;
-  const y = clientY - boardRect.top;
+  const y = clientY - boardRect.top + DRAG_POINTER_OFFSET_Y;
   // A ponta da mangueirinha acompanha o dedo; o cabo fica à direita.
   dentalHose.style.left = `${x}px`;
   dentalHose.style.top = `${y - 30}px`;
