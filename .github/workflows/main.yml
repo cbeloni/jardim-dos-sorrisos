@@ -28,7 +28,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./jardim-dos-sorrisos
+          context: ./
           platforms: linux/amd64
           push: true
           tags: cbeloni/jardim-dos-sorrisos:amd64
@@ -47,5 +47,5 @@ jobs:
 
       - name: Apply Kubernetes manifests
         run: |
-          kubectl apply -f jardim-dos-sorrisos/k8s/ --validate=false
+          kubectl apply -f k8s/ --validate=false
           kubectl rollout restart deployment/jardim-dos-sorrisos

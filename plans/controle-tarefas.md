@@ -36,6 +36,7 @@ Legenda: `[x]` concluído · `[/]` em andamento · `[ ]` pendente
 - [ ] Testar a experiência em navegadores móveis reais.
 - [ ] Empacotar e testar a primeira versão Android com Capacitor.
 - [ ] Fazer teste de usabilidade com responsáveis e crianças, com autorização.
+- [x] Corrigir contexto do Docker e caminho dos manifests no workflow do GitHub Actions.
 
 ## Deploy (GitHub Actions)
 
