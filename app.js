@@ -40,6 +40,25 @@ function notify(message) {
   window.setTimeout(() => toast.classList.add('hidden'), 1800);
 }
 
+// Explosão de estrelas cobrindo a tela inteira.
+const STAR_CHARS = ['⭐', '✨', '🌟'];
+function burstStars(count = 24) {
+  for (let i = 0; i < count; i++) {
+    const star = document.createElement('span');
+    star.className = 'star-burst';
+    star.textContent = STAR_CHARS[i % STAR_CHARS.length];
+    star.style.left = `${Math.random() * 100}%`;
+    star.style.top = `${Math.random() * 100}%`;
+    star.style.fontSize = `${22 + Math.random() * 30}px`;
+    star.style.setProperty('--tx', `${(Math.random() - 0.5) * 160}px`);
+    star.style.setProperty('--ty', `${(Math.random() - 0.5) * 160}px`);
+    star.style.setProperty('--rot', `${Math.random() * 360 - 180}deg`);
+    star.style.animationDelay = `${Math.random() * 0.35}s`;
+    document.body.appendChild(star);
+    window.setTimeout(() => star.remove(), 1500);
+  }
+}
+
 const allDirt = () => document.querySelectorAll('.dirt');
 const allSoap = () => document.querySelectorAll('.soap');
 // Tempo para ensaboar ou enxaguar cada manchinha (fração por milissegundo).
@@ -133,15 +152,31 @@ function updateToolAvailability() {
   dentalHose.classList.toggle('tool-off', hasDirt);
 }
 
+// Estrelinha pequena que aparece no lugar da manchinha ao ser ensaboada ou lavada.
+function spawnSpotStar(index) {
+  const spot = allDirt()[index] || allSoap()[index];
+  if (!spot) return;
+  const rect = spot.getBoundingClientRect();
+  const star = document.createElement('span');
+  star.className = 'spot-star';
+  star.textContent = '⭐';
+  star.style.left = `${rect.left + rect.width / 2}px`;
+  star.style.top = `${rect.top + rect.height / 2}px`;
+  document.body.appendChild(star);
+  window.setTimeout(() => star.remove(), 900);
+}
+
 function applySoapHold(clientX, clientY, dt) {
   if (step !== 1) return;
   let changed = false;
   allDirt().forEach((dirt, index) => {
     if (dirtLevel[index] <= 0) return;
     if (!spotHitTest(index, clientX, clientY)) return;
+    const wasSoaped = soapLevel[index] >= 1;
     const amount = TOOL_RATE * dt;
     dirtLevel[index] = Math.max(0, dirtLevel[index] - amount);
     soapLevel[index] = Math.min(1, soapLevel[index] + amount);
+    if (!wasSoaped && soapLevel[index] >= 1) spawnSpotStar(index);
     changed = true;
   });
   if (changed) {
@@ -157,6 +192,7 @@ function applyRinseHold(clientX, clientY, dt) {
     if (soapLevel[index] <= 0) return;
     if (!spotHitTest(index, clientX, clientY)) return;
     soapLevel[index] = Math.max(0, soapLevel[index] - TOOL_RATE * dt);
+    if (soapLevel[index] <= 0) spawnSpotStar(index);
     changed = true;
   });
   if (changed) {
@@ -173,7 +209,7 @@ function startRinsing() {
   instruction.textContent = 'Agora arraste a mangueirinha para tirar a espuma!';
   activityActions.innerHTML = '';
   makeProgress(3, 1);
-  notify('Tudo ensaboado!');
+  burstStars();
 }
 
 function finishWash() {

@@ -5,7 +5,7 @@ metadata:
     app: jardim-dos-sorrisos
   name: jardim-dos-sorrisos
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: jardim-dos-sorrisos
