@@ -25,6 +25,7 @@ let dragY = 0;
 let lastFrame = 0;
 let frameId = null;
 let soundEnabled = true;
+let hintTimer = null;
 
 function showScreen(name) {
   Object.entries(screens).forEach(([key, screen]) => screen.classList.toggle('hidden', key !== name));
@@ -39,6 +40,21 @@ function notify(message) {
   toast.textContent = message;
   toast.classList.remove('hidden');
   window.setTimeout(() => toast.classList.add('hidden'), 1800);
+}
+
+// Destaque de "toque aqui" quando a criança toca fora da ferramenta atual.
+function clearToolHints() {
+  soapBar.classList.remove('hint');
+  dentalHose.classList.remove('hint');
+  if (hintTimer) {
+    window.clearTimeout(hintTimer);
+    hintTimer = null;
+  }
+}
+function showToolHint(tool) {
+  tool.classList.add('hint');
+  if (hintTimer) window.clearTimeout(hintTimer);
+  hintTimer = window.setTimeout(() => tool.classList.remove('hint'), 2600);
 }
 
 // Explosão de estrelas cobrindo a tela inteira.
@@ -65,6 +81,7 @@ const allSoap = () => document.querySelectorAll('.soap');
 // Tempo para ensaboar ou enxaguar cada manchinha (fração por milissegundo).
 const TOOL_RATE = 1 / 1000;
 const DRAG_POINTER_OFFSET_Y = 18;
+const DENTAL_HOSE_WIDTH = 170;
 const dirtRotations = ['-14deg', '16deg', '-8deg', '10deg'];
 
 function resetTool(tool) {
@@ -73,7 +90,7 @@ function resetTool(tool) {
   tool.style.right = '';
   tool.style.bottom = '';
   tool.style.transform = '';
-  tool.classList.remove('is-dragging', 'spraying');
+  tool.classList.remove('is-dragging', 'spraying', 'hint');
 }
 
 function startFaceWashActivity() {
@@ -104,7 +121,7 @@ function startFaceWashActivity() {
 function moveSoapTo(clientX, clientY) {
   const boardRect = dentalBoard.getBoundingClientRect();
   const x = clientX - boardRect.left;
-  const y = clientY - boardRect.top + DRAG_POINTER_OFFSET_Y;
+  const y = clientY - boardRect.top - DRAG_POINTER_OFFSET_Y;
   soapBar.style.left = `${x}px`;
   soapBar.style.top = `${y}px`;
   soapBar.style.bottom = 'auto';
@@ -115,8 +132,8 @@ function moveHoseTo(clientX, clientY) {
   const boardRect = dentalBoard.getBoundingClientRect();
   const x = clientX - boardRect.left;
   const y = clientY - boardRect.top + DRAG_POINTER_OFFSET_Y;
-  // A ponta da mangueirinha acompanha o dedo; o cabo fica à direita.
-  dentalHose.style.left = `${x}px`;
+  // O dedo segura o meio da mangueira; a água sai pela ponta esquerda.
+  dentalHose.style.left = `${x - DENTAL_HOSE_WIDTH / 2}px`;
   dentalHose.style.top = `${y - 30}px`;
   dentalHose.style.right = 'auto';
   dentalHose.style.bottom = 'auto';
@@ -154,18 +171,28 @@ function updateToolAvailability() {
   dentalHose.classList.toggle('tool-off', hasDirt);
 }
 
-// Estrelinha pequena que aparece no lugar da manchinha ao ser ensaboada ou lavada.
-function spawnSpotStar(index) {
+// Três estrelinhas ao redor da manchinha quando ela é concluída (ensaboada ou lavada).
+const SPOT_STAR_CHARS = ['⭐', '✨', '🌟'];
+function spawnSpotStars(index) {
   const spot = allDirt()[index] || allSoap()[index];
   if (!spot) return;
   const rect = spot.getBoundingClientRect();
-  const star = document.createElement('span');
-  star.className = 'spot-star';
-  star.textContent = '⭐';
-  star.style.left = `${rect.left + rect.width / 2}px`;
-  star.style.top = `${rect.top + rect.height / 2}px`;
-  document.body.appendChild(star);
-  window.setTimeout(() => star.remove(), 900);
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  const offsets = [
+    { dx: -34, dy: -24 },
+    { dx: 34, dy: -24 },
+    { dx: 0, dy: 30 },
+  ];
+  offsets.forEach((o, i) => {
+    const star = document.createElement('span');
+    star.className = 'spot-star';
+    star.textContent = SPOT_STAR_CHARS[i % SPOT_STAR_CHARS.length];
+    star.style.left = `${cx + o.dx}px`;
+    star.style.top = `${cy + o.dy}px`;
+    document.body.appendChild(star);
+    window.setTimeout(() => star.remove(), 1000);
+  });
 }
 
 function applySoapHold(clientX, clientY, dt) {
@@ -178,7 +205,7 @@ function applySoapHold(clientX, clientY, dt) {
     const amount = TOOL_RATE * dt;
     dirtLevel[index] = Math.max(0, dirtLevel[index] - amount);
     soapLevel[index] = Math.min(1, soapLevel[index] + amount);
-    if (!wasSoaped && soapLevel[index] >= 1) spawnSpotStar(index);
+    if (!wasSoaped && soapLevel[index] >= 1) spawnSpotStars(index);
     changed = true;
   });
   if (changed) {
@@ -190,11 +217,13 @@ function applySoapHold(clientX, clientY, dt) {
 function applyRinseHold(clientX, clientY, dt) {
   if (step !== 2) return;
   let changed = false;
+  // A água sai pela ponta esquerda da mangueira, então é lá que se limpa.
+  const aimX = clientX - DENTAL_HOSE_WIDTH / 2;
   allDirt().forEach((dirt, index) => {
     if (soapLevel[index] <= 0) return;
-    if (!spotHitTest(index, clientX, clientY)) return;
+    if (!spotHitTest(index, aimX, clientY)) return;
     soapLevel[index] = Math.max(0, soapLevel[index] - TOOL_RATE * dt);
-    if (soapLevel[index] <= 0) spawnSpotStar(index);
+    if (soapLevel[index] <= 0) spawnSpotStars(index);
     changed = true;
   });
   if (changed) {
@@ -207,6 +236,7 @@ function startRinsing() {
   if (step !== 1) return;
   step = 2;
   endHold();
+  clearToolHints();
   updateToolAvailability();
   instruction.textContent = 'Agora arraste a mangueirinha para tirar a espuma!';
   activityActions.innerHTML = '';
@@ -280,9 +310,16 @@ document.querySelectorAll('.patient-card').forEach((card) => card.addEventListen
   else showUpcoming(activity);
 }));
 
+// Toque fora da ferramenta atual: destaca a ferramenta que deve ser usada.
+dentalBoard.addEventListener('pointerdown', (event) => {
+  if (step === 1 && !soapBar.contains(event.target)) showToolHint(soapBar);
+  else if (step === 2 && !dentalHose.contains(event.target)) showToolHint(dentalHose);
+});
+
 soapBar.addEventListener('pointerdown', (event) => {
   if (step !== 1 || soapBar.classList.contains('tool-off')) return;
   event.preventDefault();
+  clearToolHints();
   soapBar.setPointerCapture(event.pointerId);
   soapBar.classList.add('is-dragging');
   moveSoapTo(event.clientX, event.clientY);
@@ -315,6 +352,7 @@ soapBar.addEventListener('keydown', (event) => {
 dentalHose.addEventListener('pointerdown', (event) => {
   if (step !== 2 || dentalHose.classList.contains('tool-off')) return;
   event.preventDefault();
+  clearToolHints();
   dentalHose.setPointerCapture(event.pointerId);
   dentalHose.classList.add('is-dragging', 'spraying');
   moveHoseTo(event.clientX, event.clientY);
