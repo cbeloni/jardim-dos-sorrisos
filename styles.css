@@ -55,10 +55,10 @@ body.activity-mode .topbar { order: 3; margin-top: 8px; }
 .dirt-three, .soap-three { left: 45%; top: 47%; }
 .dirt-four, .soap-four { left: 49%; top: 70%; }.sparkle { position: absolute; z-index: 6; color: #fff; font-size: 28px; opacity: 0; }.sparkle-a { top: 43%; left: 28%; }.sparkle-b { top: 53%; right: 27%; }.soap-bar { position: absolute; left: 18px; bottom: 18px; z-index: 4; padding: 8px; font-size: 60px; transform: translate(0, 0); user-select: none; touch-action: none; transition: transform .2s; }.soap-bar.is-dragging { transition: none; }.soap-bar.tool-off { opacity: .38; pointer-events: none; filter: grayscale(.7); }.dental-hose { position: absolute; right: 16px; bottom: 16px; top: auto; z-index: 3; width: 170px; height: 64px; opacity: 1; pointer-events: auto; transform: rotate(-6deg); transition: opacity .25s ease, transform .2s ease; }.hose-tube { position: absolute; top: 35px; right: 0; width: 100%; height: 22px; border-radius: 20px 0 0 20px; background: #8a78bd; box-shadow: inset 0 -5px #6855a0; }.hose-handle { position: absolute; left: 3px; top: 21px; width: 48px; height: 48px; padding-top: 9px; border: 7px solid #6855a0; border-radius: 50%; background: #d9d2f1; color: #6855a0; font-size: 18px; }.water-drop { position: absolute; left: 0; color: #5fc7ee; font-size: 23px; opacity: 0; }.drop-one { top: 57px; }.drop-two { top: 67px; left: 17px; }.drop-three { top: 62px; left: 35px; }.dental-board.rinsing .dental-hose { animation: hose-rinse 1.5s ease-in-out both; }.dental-board.rinsing .water-drop { animation: water-spray .8s ease-in-out infinite; }.dental-board.rinsing .drop-two { animation-delay: .18s; }.dental-board.rinsing .drop-three { animation-delay: .36s; }.activity-actions { min-height: 62px; }.action-button { min-height: 58px; padding: 0 24px; border-radius: 18px; background: var(--yellow); box-shadow: 0 5px 0 #dbad47; font-size: 18px; font-weight: 800; }.action-button:active { transform: translateY(3px); box-shadow: 0 2px 0 #dbad47; }
 .screen-complete { display: flex; flex-direction: column; align-items: center; justify-content: center; }.confetti { margin-bottom: 22px; color: var(--pink); font-size: 22px; letter-spacing: 7px; }.complete-character { margin-bottom: 10px; font-size: 130px; animation: bounce 1s ease-in-out infinite alternate; }.screen-complete h2 { max-width: 400px; }.screen-complete > p:not(.eyebrow) { color: var(--muted); font-size: 18px; }.reward { display: flex; align-items: center; gap: 9px; margin: 12px 0 32px; padding: 12px 18px; border-radius: 16px; background: #fff0ba; color: #9c7625; font-weight: 800; }.reward:first-letter { font-size: 25px; }.toast { position: fixed; bottom: 24px; left: 50%; max-width: calc(100% - 40px); padding: 12px 20px; transform: translateX(-50%); border-radius: 15px; background: var(--ink); color: white; box-shadow: 0 5px 20px #0002; font-weight: 700; }.toast:not(.hidden) { animation: appear .2s ease-out; }
-.star-burst { position: fixed; z-index: 999; pointer-events: none; opacity: 0; animation: star-burst .9s ease-out both; }
+.star-burst { position: fixed; z-index: 999; pointer-events: none; opacity: 0; animation: star-burst 5s ease-out both; }
 .spot-star { position: fixed; z-index: 998; pointer-events: none; font-size: 26px; opacity: 0; animation: spot-star-pop .85s ease-out both; }
 @keyframes appear { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } } @keyframes bounce { to { transform: translateY(-10px) rotate(3deg); } } @keyframes patient-ready { 0% { transform: translateX(-50%) translateY(12px) scale(.92); } 45% { transform: translateX(-50%) translateY(-3px) scale(1.04); } 100% { transform: translateX(-50%) translateY(0) scale(1); } } @keyframes mouth-open { 0% { transform: translate(-50%, -50%) scaleY(.12); opacity: .15; } 42% { transform: translate(-50%, -50%) scaleY(.12); opacity: .2; } 75% { transform: translate(-50%, -50%) scaleY(1.08); opacity: 1; } 100% { transform: translate(-50%, -50%) scaleY(1); opacity: 1; } } @keyframes brush-demo-move { 0%, 100% { transform: translateX(-50%) translateY(0) rotate(0); } 18% { transform: translateX(-125%) translateY(-112px) rotate(-22deg); } 38% { transform: translateX(-38%) translateY(-135px) rotate(12deg); } 58% { transform: translateX(35%) translateY(-124px) rotate(-12deg); } 78% { transform: translateX(112%) translateY(-108px) rotate(18deg); } } @keyframes hose-rinse { 0% { opacity: 0; transform: translateX(80px) rotate(-18deg); } 35% { opacity: 1; transform: translateX(0) rotate(-8deg); } 70% { opacity: 1; transform: translateX(-8px) rotate(5deg); } 100% { opacity: 0; transform: translateX(80px) rotate(-18deg); } } @keyframes water-spray { 0%, 100% { opacity: 0; transform: translate(6px, -4px) scale(.7); } 50% { opacity: 1; transform: translate(-20px, 14px) scale(1); } }
-@media (max-width: 520px) { .app-shell { padding-left: 16px; padding-right: 16px; }.patient-grid { gap: 8px; }.patient-card { min-height: 205px; border-radius: 20px; font-size: 16px; }.patient-emoji { font-size: 80px; }.animal-character { transform: scale(.9); transform-origin: center bottom; margin-bottom: -8px; }.need-badge { font-size: 11px; }.dental-board { min-height: 380px; }.dirt { width: 30px; height: 24px; }.soap { width: 32px; height: 29px; } }
+@media (max-width: 520px) { .app-shell { padding-left: 16px; padding-right: 16px; }.patient-grid { gap: 8px; }.patient-card { min-height: 205px; border-radius: 20px; font-size: 16px; }.patient-emoji { font-size: 80px; }.animal-character { transform: scale(.9); transform-origin: center bottom; margin-bottom: -8px; }.need-badge { font-size: 11px; }.dental-board { min-height: 380px; }.dirt { width: 30px; height: 24px; }.soap { width: 32px; height: 29px; }.injury { width: 28px; height: 28px; }.medicine { width: 32px; height: 30px; }.bandage { zoom: .75; }.mimi-cat { font-size: clamp(150px, 40vh, 360px); }.medicine-tool { zoom: .8; }.bandage-tool { zoom: .8; }.leaf, .twig { zoom: .75; }.toto-bear { font-size: clamp(150px, 40vh, 360px); }.pente-tool { zoom: .8; }.lenco-tool { zoom: .8; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
 
 /* --- Atividade dental: escova e mangueirinha controladas pela criança --- */
@@ -100,7 +100,7 @@ body.activity-mode .topbar { order: 3; margin-top: 8px; }
 .dental-board.rinsing .sparkle { animation: sparkle-pop .6s ease-out both; }
 .dental-board.rinsing .sparkle-b { animation-delay: .25s; }
 @keyframes sparkle-pop { 0% { opacity: 0; transform: scale(.4) rotate(0); } 50% { opacity: 1; transform: scale(1.25) rotate(12deg); } 100% { opacity: 0; transform: scale(.6) rotate(-12deg); } }
-@keyframes star-burst { 0% { opacity: 0; transform: translate(0, 0) scale(.3) rotate(0); } 22% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--tx, 0), var(--ty, 0)) scale(1.35) rotate(var(--rot, 0)); } }
+@keyframes star-burst { 0% { opacity: 0; transform: translate(0, 0) scale(.3) rotate(0); } 5% { opacity: 1; transform: translate(var(--tx, 0), var(--ty, 0)) scale(1.2) rotate(var(--rot, 0)); } 18% { opacity: .15; } 28% { opacity: 1; } 40% { opacity: .15; } 50% { opacity: 1; } 62% { opacity: .15; } 72% { opacity: 1; } 85% { opacity: .5; } 94% { opacity: .2; } 100% { opacity: 0; transform: translate(var(--tx, 0), var(--ty, 0)) scale(1.3) rotate(var(--rot, 0)); } }
 @keyframes spot-star-pop { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.3) rotate(-20deg); } 30% { opacity: 1; transform: translate(-50%, -50%) scale(1.3) rotate(8deg); } 100% { opacity: 0; transform: translate(-50%, -75%) scale(.8) rotate(15deg); } }
 
 /* O rosto de referência fica abaixo das manchas e da espuma interativas. */
@@ -112,3 +112,142 @@ body.activity-mode .topbar { order: 3; margin-top: 8px; }
 .rabbit-face > .rabbit-nose,
 .rabbit-face > .rabbit-mouth { display: none; }
 @keyframes face-pop { from { transform: scale(.86); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* --- Atividade da Mimi: machucados, remédio e curativos --- */
+.mimi-face { position: relative; width: min(96%, 67vh, 633px); aspect-ratio: 1329 / 1183; max-height: 96%; }
+.mimi-cat { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: clamp(200px, 52vh, 500px); line-height: 1; z-index: 2; }
+.injury, .medicine { position: absolute; z-index: 5; pointer-events: none; opacity: 0; transform: scale(.3); transition: opacity .12s linear, transform .12s linear; }
+.injury { width: 40px; height: 40px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #ff6b6b, #d22630 78%); box-shadow: inset 0 -3px 4px #8f1b22; }
+.medicine { width: 46px; height: 44px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #ffffff, #ffe0ee 78%); box-shadow: 0 0 12px #ffd3e8cc, inset 0 -4px 6px #f2b7d0; }
+.injury-one, .medicine-one { left: 24%; top: 50%; }
+.injury-two, .medicine-two { left: 68%; top: 50%; }
+.injury-three, .medicine-three { left: 46%; top: 36%; }
+.injury-four, .medicine-four { left: 50%; top: 64%; }
+.bandage { position: absolute; z-index: 6; width: 72px; height: 28px; opacity: 0; transform: scale(.4) rotate(-20deg); transition: opacity .25s ease, transform .25s ease; pointer-events: none; }
+.bandage.applied { opacity: 1; transform: scale(1) rotate(-12deg); animation: bandage-pop .5s ease-out both; }
+.bandage-strip { position: absolute; inset: 0; border-radius: 10px; background: #ffd76e; box-shadow: inset 0 -3px 0 #e0b34a, 0 2px 4px #0002; }
+.bandage-strip::before, .bandage-strip::after { content: ''; position: absolute; top: 4px; bottom: 4px; width: 14px; border-radius: 4px; background: #fffbe8; box-shadow: 0 0 0 2px #f0d79a; }
+.bandage-strip::before { left: 2px; }
+.bandage-strip::after { right: 2px; }
+.bandage-one { left: calc(24% - 16px); top: calc(50% + 6px); }
+.bandage-two { left: calc(68% - 16px); top: calc(50% + 6px); }
+.bandage-three { left: calc(46% - 16px); top: calc(36% + 6px); }
+.bandage-four { left: calc(50% - 16px); top: calc(64% + 6px); }
+.medicine-tool { position: absolute; left: 18px; bottom: 18px; z-index: 4; width: 60px; display: flex; flex-direction: column; align-items: center; transform: translate(0, 0); user-select: none; touch-action: none; transition: transform .2s; }
+.medicine-tool.is-dragging { transition: none; }
+.medicine-tool.tool-off { opacity: .38; pointer-events: none; filter: grayscale(.7); }
+.dropper-bulb { width: 34px; height: 32px; border-radius: 50% 50% 44% 44%; background: #ff9c2e; border: 3px solid #1a1a1a; box-shadow: inset 0 -4px 0 #e07f12; }
+.dropper-collar { width: 22px; height: 9px; border-radius: 4px; background: #ff9c2e; border: 3px solid #1a1a1a; margin-top: -2px; }
+.dropper-tube { width: 14px; height: 42px; background: #6cb5f0; border-left: 3px solid #1a1a1a; border-right: 3px solid #1a1a1a; }
+.dropper-tip { position: relative; width: 18px; height: 14px; background: #1a1a1a; clip-path: polygon(12% 0, 88% 0, 100% 100%, 0 100%); }
+.dropper-tip::before { content: ''; position: absolute; inset: 2px; background: #6cb5f0; clip-path: inherit; }
+.dropper-drop { width: 12px; height: 14px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: #6cb5f0; border: 2px solid #1a1a1a; opacity: 0; margin-top: 4px; }
+.medicine-tool.is-dragging .dropper-drop { animation: dropper-drip .5s ease-in-out infinite; }
+@keyframes dropper-drip { 0%, 100% { opacity: 0; transform: rotate(-45deg) translateY(0) scale(.8); } 50% { opacity: 1; transform: rotate(-45deg) translateY(8px) scale(1); } }
+.bandage-tool { position: absolute; right: 16px; bottom: 16px; z-index: 3; width: 96px; height: 38px; opacity: 1; pointer-events: auto; user-select: none; touch-action: none; transition: opacity .25s ease, transform .2s ease; }
+.bandage-tool.is-dragging { transition: none; }
+.bandage-tool.tool-off { opacity: .38; pointer-events: none; filter: grayscale(.7); }
+.bandage-tool.done { opacity: 0; pointer-events: none; transition: opacity .3s ease; }
+.bandage-tool-strip { position: absolute; inset: 0; border-radius: 12px; background: #ffd76e; box-shadow: inset 0 -4px 0 #e0b34a, 0 2px 5px #0002; }
+.bandage-tool-strip::before, .bandage-tool-strip::after { content: ''; position: absolute; top: 5px; bottom: 5px; width: 18px; border-radius: 5px; background: #fffbe8; box-shadow: 0 0 0 2px #f0d79a; }
+.bandage-tool-strip::before { left: 3px; }
+.bandage-tool-strip::after { right: 3px; }
+@keyframes bandage-pop { 0% { opacity: 0; transform: scale(.4) rotate(-20deg); } 55% { opacity: 1; transform: scale(1.2) rotate(-8deg); } 100% { opacity: 1; transform: scale(1) rotate(-12deg); } }
+/* Destaque "toque aqui" das ferramentas da Mimi */
+.medicine-tool.hint, .bandage-tool.hint { animation: tool-hint-jump .7s ease-in-out 2; }
+.medicine-tool.hint::after, .bandage-tool.hint::after {
+  content: '';
+  position: absolute;
+  inset: -16px;
+  border-radius: 50%;
+  border: 5px solid var(--yellow);
+  box-shadow: 0 0 16px #ffd66e99;
+  animation: tool-hint-ring .9s ease-out infinite;
+  pointer-events: none;
+}
+
+/* --- Atividade do Toto: folhas, pente e lenço --- */
+.toto-face { position: relative; width: min(96%, 67vh, 633px); aspect-ratio: 1329 / 1183; max-height: 96%; }
+.toto-bear { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: clamp(200px, 52vh, 500px); line-height: 1; z-index: 2; }
+.leaf, .twig { position: absolute; z-index: 5; pointer-events: none; opacity: 0; transform: scale(.3); transition: opacity .12s linear, transform .12s linear; }
+/* Uma única folha desenhada em CSS (lâmina + cabo), idêntica em qualquer dispositivo. */
+.leaf { width: 38px; height: 42px; }
+.leaf::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 4px;
+  width: 27px;
+  height: 33px;
+  background: radial-gradient(circle at 34% 30%, #8fd971 0%, #4aa838 62%, #3a8f2c 100%);
+  border-radius: 0 100% 0 100%;
+  box-shadow: inset -3px -3px 6px rgba(30, 80, 20, .3);
+}
+.leaf::after {
+  content: '';
+  position: absolute;
+  right: 3px;
+  bottom: 1px;
+  width: 3px;
+  height: 16px;
+  background: linear-gradient(#6aa642, #2f7524);
+  border-radius: 2px;
+  transform: rotate(-24deg);
+  transform-origin: top center;
+}
+/* Galho desenhado em CSS (haste + ramo), próximo das folhas. */
+.twig { width: 40px; height: 44px; z-index: 4; }
+.twig::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 16px;
+  width: 34px;
+  height: 6px;
+  background: linear-gradient(90deg, #a06b3c, #57361c);
+  border-radius: 3px;
+  transform: rotate(-22deg);
+  box-shadow: inset 0 -2px 2px rgba(0, 0, 0, .25);
+}
+.twig::after {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 4px;
+  width: 5px;
+  height: 18px;
+  background: linear-gradient(#a06b3c, #57361c);
+  border-radius: 3px;
+  transform: rotate(-42deg);
+  transform-origin: bottom center;
+}
+.leaf-one { left: 26%; top: 46%; }
+.leaf-two { left: 68%; top: 46%; }
+.leaf-three { left: 46%; top: 34%; }
+.leaf-four { left: 50%; top: 60%; }
+.twig-one { left: 33%; top: 49%; }
+.twig-two { left: 62%; top: 49%; }
+.twig-three { left: 54%; top: 30%; }
+.twig-four { left: 43%; top: 64%; }
+.pente-tool { position: absolute; left: 18px; bottom: 18px; z-index: 4; width: 60px; display: flex; flex-direction: column; align-items: center; transform: translate(0, 0); user-select: none; touch-action: none; transition: transform .2s; }
+.pente-tool.is-dragging { transition: none; }
+.pente-tool.tool-off { opacity: .38; pointer-events: none; filter: grayscale(.7); }
+.comb-spine { width: 54px; height: 12px; border-radius: 6px; background: #7a5a3a; border: 2px solid #3f2f22; }
+.comb-teeth { width: 46px; height: 18px; background: repeating-linear-gradient(90deg, #3f2f22 0 3px, transparent 3px 8px); margin-top: 2px; }
+.lenco-tool { position: absolute; right: 16px; bottom: 16px; z-index: 3; width: 60px; display: flex; align-items: center; justify-content: center; opacity: 1; pointer-events: auto; user-select: none; touch-action: none; transition: opacity .25s ease, transform .2s ease; }
+.lenco-tool.is-dragging { transition: none; }
+.lenco-tool.tool-off { opacity: .38; pointer-events: none; filter: grayscale(.7); }
+.lenco-tool.done { opacity: 0; pointer-events: none; transition: opacity .3s ease; }
+.tissue { width: 54px; height: 42px; border-radius: 8px; background: #fff8ee; border: 2px solid #d8c9b0; box-shadow: 0 2px 4px #0002, inset 0 -6px 0 #f0e3cc; }
+/* Destaque "toque aqui" das ferramentas do Toto */
+.pente-tool.hint, .lenco-tool.hint { animation: tool-hint-jump .7s ease-in-out 2; }
+.pente-tool.hint::after, .lenco-tool.hint::after {
+  content: '';
+  position: absolute;
+  inset: -16px;
+  border-radius: 50%;
+  border: 5px solid var(--yellow);
+  box-shadow: 0 0 16px #ffd66e99;
+  animation: tool-hint-ring .9s ease-out infinite;
+  pointer-events: none;
+}

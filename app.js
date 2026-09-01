@@ -16,6 +16,12 @@ const dentalHose = document.querySelector('#dental-hose');
 const progressDots = document.querySelector('#progress-dots');
 const toast = document.querySelector('#toast');
 const dentalBoard = document.querySelector('#dental-board');
+const treatBoard = document.querySelector('#treat-board');
+const medicineTool = document.querySelector('#medicine-tool');
+const bandageTool = document.querySelector('#bandage-tool');
+const cleanBoard = document.querySelector('#clean-board');
+const penteTool = document.querySelector('#pente-tool');
+const lencoTool = document.querySelector('#lenco-tool');
 let step = 0;
 let dirtLevel = [];
 let soapLevel = [];
@@ -26,6 +32,14 @@ let lastFrame = 0;
 let frameId = null;
 let soundEnabled = true;
 let hintTimer = null;
+let currentActivity = 'wash';
+let treatStep = 0;
+let injuryLevel = [];
+let medicineLevel = [];
+let bandageApplied = [];
+let cleanStep = 0;
+let leafLevel = [];
+let twigLevel = [];
 
 function showScreen(name) {
   Object.entries(screens).forEach(([key, screen]) => screen.classList.toggle('hidden', key !== name));
@@ -46,6 +60,10 @@ function notify(message) {
 function clearToolHints() {
   soapBar.classList.remove('hint');
   dentalHose.classList.remove('hint');
+  medicineTool.classList.remove('hint');
+  bandageTool.classList.remove('hint');
+  penteTool.classList.remove('hint');
+  lencoTool.classList.remove('hint');
   if (hintTimer) {
     window.clearTimeout(hintTimer);
     hintTimer = null;
@@ -72,7 +90,7 @@ function burstStars(count = 24) {
     star.style.setProperty('--rot', `${Math.random() * 360 - 180}deg`);
     star.style.animationDelay = `${Math.random() * 0.35}s`;
     document.body.appendChild(star);
-    window.setTimeout(() => star.remove(), 1500);
+    window.setTimeout(() => star.remove(), 5200);
   }
 }
 
@@ -94,9 +112,13 @@ function resetTool(tool) {
 }
 
 function startFaceWashActivity() {
+  currentActivity = 'wash';
   step = 1;
   dirtLevel = Array.from(allDirt(), () => 1);
   soapLevel = Array.from(allSoap(), () => 0);
+  dentalBoard.classList.remove('hidden');
+  treatBoard.classList.add('hidden');
+  cleanBoard.classList.add('hidden');
   dentalBoard.classList.remove('reveal-mouth', 'brush-demo', 'rinsing');
   resetTool(soapBar);
   resetTool(dentalHose);
@@ -139,11 +161,12 @@ function moveHoseTo(clientX, clientY) {
   dentalHose.style.bottom = 'auto';
 }
 
-function spotHitTest(index, clientX, clientY) {
-  const boardRect = dentalBoard.getBoundingClientRect();
-  const dirt = allDirt()[index];
-  if (!dirt) return false;
-  const rect = dirt.getBoundingClientRect();
+function spotHitTest(index, clientX, clientY, spots) {
+  const board = currentActivity === 'treat' ? treatBoard : (currentActivity === 'clean' ? cleanBoard : dentalBoard);
+  const boardRect = board.getBoundingClientRect();
+  const spot = spots[index];
+  if (!spot) return false;
+  const rect = spot.getBoundingClientRect();
   const sx = rect.left - boardRect.left;
   const sy = rect.top - boardRect.top;
   const lx = clientX - boardRect.left;
@@ -173,8 +196,8 @@ function updateToolAvailability() {
 
 // Três estrelinhas ao redor da manchinha quando ela é concluída (ensaboada ou lavada).
 const SPOT_STAR_CHARS = ['⭐', '✨', '🌟'];
-function spawnSpotStars(index) {
-  const spot = allDirt()[index] || allSoap()[index];
+function spawnSpotStars(index, spots) {
+  const spot = spots ? spots[index] : (allDirt()[index] || allSoap()[index]);
   if (!spot) return;
   const rect = spot.getBoundingClientRect();
   const cx = rect.left + rect.width / 2;
@@ -191,7 +214,7 @@ function spawnSpotStars(index) {
     star.style.left = `${cx + o.dx}px`;
     star.style.top = `${cy + o.dy}px`;
     document.body.appendChild(star);
-    window.setTimeout(() => star.remove(), 1000);
+    window.setTimeout(() => star.remove(), 5000);
   });
 }
 
@@ -200,12 +223,12 @@ function applySoapHold(clientX, clientY, dt) {
   let changed = false;
   allDirt().forEach((dirt, index) => {
     if (dirtLevel[index] <= 0) return;
-    if (!spotHitTest(index, clientX, clientY)) return;
+    if (!spotHitTest(index, clientX, clientY, allDirt())) return;
     const wasSoaped = soapLevel[index] >= 1;
     const amount = TOOL_RATE * dt;
     dirtLevel[index] = Math.max(0, dirtLevel[index] - amount);
     soapLevel[index] = Math.min(1, soapLevel[index] + amount);
-    if (!wasSoaped && soapLevel[index] >= 1) spawnSpotStars(index);
+    if (!wasSoaped && soapLevel[index] >= 1) spawnSpotStars(index, allDirt());
     changed = true;
   });
   if (changed) {
@@ -221,7 +244,7 @@ function applyRinseHold(clientX, clientY, dt) {
   const aimX = clientX - DENTAL_HOSE_WIDTH / 2;
   allDirt().forEach((dirt, index) => {
     if (soapLevel[index] <= 0) return;
-    if (!spotHitTest(index, aimX, clientY)) return;
+    if (!spotHitTest(index, aimX, clientY, allDirt())) return;
     soapLevel[index] = Math.max(0, soapLevel[index] - TOOL_RATE * dt);
     if (soapLevel[index] <= 0) spawnSpotStars(index);
     changed = true;
@@ -237,11 +260,11 @@ function startRinsing() {
   step = 2;
   endHold();
   clearToolHints();
+  resetTool(soapBar);
   updateToolAvailability();
   instruction.textContent = 'Agora arraste a mangueirinha para tirar a espuma!';
   activityActions.innerHTML = '';
   makeProgress(3, 1);
-  burstStars();
 }
 
 function finishWash() {
@@ -253,7 +276,305 @@ function finishWash() {
   dentalBoard.classList.add('rinsing');
   makeProgress(3, 2);
   instruction.textContent = 'Que rostinho brilhando!';
-  window.setTimeout(() => showScreen('complete'), 1300);
+  burstStars();
+  window.setTimeout(() => showScreen('garden'), 5000);
+}
+
+// --- Atividade da Mimi: machucados, remédio e curativos ---
+function setCompleteScreen(character, title, description) {
+  document.querySelector('#complete-character').textContent = character;
+  document.querySelector('#complete-title').textContent = title;
+  document.querySelector('#complete-description').textContent = description;
+}
+
+const allInjuries = () => document.querySelectorAll('.injury');
+const allMedicine = () => document.querySelectorAll('.medicine');
+const allBandages = () => document.querySelectorAll('.bandage');
+
+function resetTreatTools() {
+  [medicineTool, bandageTool].forEach((tool) => {
+    tool.style.left = '';
+    tool.style.top = '';
+    tool.style.right = '';
+    tool.style.bottom = '';
+    tool.style.transform = '';
+    tool.classList.remove('is-dragging', 'hint');
+  });
+}
+
+function updateTreatSpotVisuals() {
+  const medEls = allMedicine();
+  const bandEls = allBandages();
+  allInjuries().forEach((inj, index) => {
+    const d = injuryLevel[index];
+    inj.style.opacity = String(Math.max(0, Math.min(1, d)));
+    inj.style.transform = `scale(${0.45 + 0.55 * d})`;
+    if (medEls[index]) {
+      const m = medicineLevel[index];
+      medEls[index].style.opacity = String(Math.max(0, Math.min(1, m)));
+      medEls[index].style.transform = `scale(${0.3 + 0.7 * m})`;
+    }
+    if (bandEls[index] && bandageApplied[index]) bandEls[index].classList.add('applied');
+  });
+}
+
+function updateTreatToolAvailability() {
+  const hasInjury = injuryLevel.some((d) => d > 0.01);
+  medicineTool.classList.toggle('tool-off', !hasInjury);
+  bandageTool.classList.toggle('tool-off', hasInjury);
+}
+
+function startTreatActivity() {
+  currentActivity = 'treat';
+  treatStep = 1;
+  injuryLevel = Array.from(allInjuries(), () => 1);
+  medicineLevel = Array.from(allMedicine(), () => 0);
+  bandageApplied = Array.from(allBandages(), () => false);
+  dentalBoard.classList.add('hidden');
+  treatBoard.classList.remove('hidden');
+  cleanBoard.classList.add('hidden');
+  resetTreatTools();
+  allBandages().forEach((b) => b.classList.remove('applied'));
+  updateTreatSpotVisuals();
+  updateTreatToolAvailability();
+  activityEyebrow.textContent = 'Cuidando da Mimi';
+  activityTitle.textContent = 'Vamos cuidar dos machucados da Mimi?';
+  instruction.textContent = 'Olha! A Mimi está com machucadinhos.';
+  activityActions.innerHTML = '';
+  makeProgress(3, 0);
+  showScreen('activity');
+  window.setTimeout(() => {
+    if (treatStep === 1) instruction.textContent = 'Passe o remédio sobre os machucados!';
+  }, 1700);
+}
+
+function moveMedicineTo(clientX, clientY) {
+  const rect = treatBoard.getBoundingClientRect();
+  const x = clientX - rect.left;
+  const y = clientY - rect.top;
+  // O conta-gotas fica acima do dedo; o cursor fica um pouco abaixo.
+  medicineTool.style.left = `${x - 30}px`;
+  medicineTool.style.top = `${y - 122}px`;
+  medicineTool.style.right = 'auto';
+  medicineTool.style.bottom = 'auto';
+  medicineTool.style.transform = 'rotate(-8deg) scale(1.1)';
+}
+
+function moveBandageTo(clientX, clientY) {
+  const rect = treatBoard.getBoundingClientRect();
+  const x = clientX - rect.left;
+  const y = clientY - rect.top;
+  // O curativo fica acima do dedo; o cursor fica um pouco abaixo.
+  bandageTool.style.left = `${x - 48}px`;
+  bandageTool.style.top = `${y - 58}px`;
+  bandageTool.style.right = 'auto';
+  bandageTool.style.bottom = 'auto';
+  bandageTool.style.transform = 'rotate(-12deg) scale(1.15)';
+}
+
+function applyMedicineHold(clientX, clientY, dt) {
+  if (treatStep !== 1) return;
+  let changed = false;
+  allInjuries().forEach((inj, index) => {
+    if (injuryLevel[index] <= 0) return;
+    if (!spotHitTest(index, clientX, clientY, allInjuries())) return;
+    const wasDone = medicineLevel[index] >= 1;
+    const amount = TOOL_RATE * dt;
+    injuryLevel[index] = Math.max(0, injuryLevel[index] - amount);
+    medicineLevel[index] = Math.min(1, medicineLevel[index] + amount);
+    if (!wasDone && medicineLevel[index] >= 1) spawnSpotStars(index, allInjuries());
+    changed = true;
+  });
+  if (changed) {
+    updateTreatSpotVisuals();
+    if (injuryLevel.every((d) => d <= 0)) startBandaging();
+  }
+}
+
+function applyBandageHold(clientX, clientY, dt) {
+  if (treatStep !== 2) return;
+  let changed = false;
+  allInjuries().forEach((inj, index) => {
+    if (medicineLevel[index] <= 0) return;
+    if (!spotHitTest(index, clientX, clientY, allInjuries())) return;
+    medicineLevel[index] = Math.max(0, medicineLevel[index] - TOOL_RATE * dt);
+    if (medicineLevel[index] <= 0 && !bandageApplied[index]) {
+      bandageApplied[index] = true;
+      const b = allBandages()[index];
+      if (b) b.classList.add('applied');
+    }
+    changed = true;
+  });
+  if (changed) {
+    updateTreatSpotVisuals();
+    if (bandageApplied.every((b) => b)) finishTreat();
+  }
+}
+
+function startBandaging() {
+  if (treatStep !== 1) return;
+  treatStep = 2;
+  endHold();
+  clearToolHints();
+  resetTreatTools();
+  updateTreatToolAvailability();
+  instruction.textContent = 'Agora coloque o curativo sobre cada machucado!';
+  activityActions.innerHTML = '';
+  makeProgress(3, 1);
+}
+
+function finishTreat() {
+  if (treatStep !== 2) return;
+  treatStep = 3;
+  endHold();
+  clearToolHints();
+  bandageTool.classList.add('done');
+  updateTreatToolAvailability();
+  makeProgress(3, 2);
+  instruction.textContent = 'Que linda, toda cheia de curativos!';
+  burstStars();
+  window.setTimeout(() => showScreen('garden'), 5000);
+}
+
+// --- Atividade do Toto: folhas, pente e lenço ---
+const allLeaves = () => document.querySelectorAll('.leaf');
+const allTwigs = () => document.querySelectorAll('.twig');
+const leafRotations = ['-12deg', '14deg', '-8deg', '10deg'];
+
+function resetCleanTools() {
+  [penteTool, lencoTool].forEach((tool) => {
+    tool.style.left = '';
+    tool.style.top = '';
+    tool.style.right = '';
+    tool.style.bottom = '';
+    tool.style.transform = '';
+    tool.classList.remove('is-dragging', 'hint');
+  });
+}
+
+function updateCleanSpotVisuals() {
+  const twigEls = allTwigs();
+  allLeaves().forEach((leaf, index) => {
+    const d = leafLevel[index];
+    leaf.style.opacity = String(Math.max(0, Math.min(1, d)));
+    leaf.style.transform = `scale(${0.5 + 0.5 * d}) rotate(${leafRotations[index] || '0deg'})`;
+    if (twigEls[index]) {
+      const t = twigLevel[index];
+      twigEls[index].style.opacity = String(Math.max(0, Math.min(1, t)));
+      twigEls[index].style.transform = `scale(${0.5 + 0.5 * t})`;
+    }
+  });
+}
+
+function updateCleanToolAvailability() {
+  const hasTwig = twigLevel.some((d) => d > 0.01);
+  penteTool.classList.toggle('tool-off', !hasTwig);
+  lencoTool.classList.toggle('tool-off', hasTwig);
+}
+
+function startCleanActivity() {
+  currentActivity = 'clean';
+  cleanStep = 1;
+  leafLevel = Array.from(allLeaves(), () => 1);
+  twigLevel = Array.from(allTwigs(), () => 1);
+  dentalBoard.classList.add('hidden');
+  treatBoard.classList.add('hidden');
+  cleanBoard.classList.remove('hidden');
+  resetCleanTools();
+  updateCleanSpotVisuals();
+  updateCleanToolAvailability();
+  activityEyebrow.textContent = 'Cuidando do Toto';
+  activityTitle.textContent = 'Vamos tirar os galhos e as folhas do Toto?';
+  instruction.textContent = 'Olha! O Toto está cheio de galhos e folhinhas.';
+  activityActions.innerHTML = '';
+  makeProgress(3, 0);
+  showScreen('activity');
+  window.setTimeout(() => {
+    if (cleanStep === 1) instruction.textContent = 'Passe o pente para tirar os galhos!';
+  }, 1700);
+}
+
+function movePenteTo(clientX, clientY) {
+  const rect = cleanBoard.getBoundingClientRect();
+  const x = clientX - rect.left;
+  const y = clientY - rect.top;
+  // O pente fica acima do dedo; o cursor fica um pouco abaixo.
+  penteTool.style.left = `${x - 30}px`;
+  penteTool.style.top = `${y - 60}px`;
+  penteTool.style.right = 'auto';
+  penteTool.style.bottom = 'auto';
+  penteTool.style.transform = 'rotate(-8deg) scale(1.1)';
+}
+
+function moveLencoTo(clientX, clientY) {
+  const rect = cleanBoard.getBoundingClientRect();
+  const x = clientX - rect.left;
+  const y = clientY - rect.top;
+  // O lenço fica acima do dedo; o cursor fica um pouco abaixo.
+  lencoTool.style.left = `${x - 30}px`;
+  lencoTool.style.top = `${y - 66}px`;
+  lencoTool.style.right = 'auto';
+  lencoTool.style.bottom = 'auto';
+  lencoTool.style.transform = 'rotate(-8deg) scale(1.1)';
+}
+
+function applyPenteHold(clientX, clientY, dt) {
+  if (cleanStep !== 1) return;
+  let changed = false;
+  allTwigs().forEach((twig, index) => {
+    if (twigLevel[index] <= 0) return;
+    if (!spotHitTest(index, clientX, clientY, allTwigs())) return;
+    const before = twigLevel[index];
+    twigLevel[index] = Math.max(0, twigLevel[index] - TOOL_RATE * dt);
+    if (before > 0 && twigLevel[index] <= 0) spawnSpotStars(index, allTwigs());
+    changed = true;
+  });
+  if (changed) {
+    updateCleanSpotVisuals();
+    if (twigLevel.every((d) => d <= 0)) startLenco();
+  }
+}
+
+function applyLencoHold(clientX, clientY, dt) {
+  if (cleanStep !== 2) return;
+  let changed = false;
+  allLeaves().forEach((leaf, index) => {
+    if (leafLevel[index] <= 0) return;
+    if (!spotHitTest(index, clientX, clientY, allLeaves())) return;
+    const before = leafLevel[index];
+    leafLevel[index] = Math.max(0, leafLevel[index] - TOOL_RATE * dt);
+    if (before > 0 && leafLevel[index] <= 0) spawnSpotStars(index, allLeaves());
+    changed = true;
+  });
+  if (changed) {
+    updateCleanSpotVisuals();
+    if (leafLevel.every((d) => d <= 0)) finishClean();
+  }
+}
+
+function startLenco() {
+  if (cleanStep !== 1) return;
+  cleanStep = 2;
+  endHold();
+  clearToolHints();
+  resetCleanTools();
+  updateCleanToolAvailability();
+  instruction.textContent = 'Agora passe o lenço para tirar as folhas!';
+  activityActions.innerHTML = '';
+  makeProgress(3, 1);
+}
+
+function finishClean() {
+  if (cleanStep !== 2) return;
+  cleanStep = 3;
+  endHold();
+  clearToolHints();
+  lencoTool.classList.add('done');
+  updateCleanToolAvailability();
+  makeProgress(3, 2);
+  instruction.textContent = 'Que pelinho limpinho!';
+  burstStars();
+  window.setTimeout(() => showScreen('garden'), 5000);
 }
 
 // --- Segurar a ferramenta para acumular ensaboar/enxaguar ---
@@ -283,8 +604,16 @@ function holdTick(now) {
   if (!dragActive) return;
   const dt = Math.min(now - lastFrame, 50);
   lastFrame = now;
-  if (step === 1) applySoapHold(dragX, dragY, dt);
-  else if (step === 2) applyRinseHold(dragX, dragY, dt);
+  if (currentActivity === 'wash') {
+    if (step === 1) applySoapHold(dragX, dragY, dt);
+    else if (step === 2) applyRinseHold(dragX, dragY, dt);
+  } else if (currentActivity === 'treat') {
+    if (treatStep === 1) applyMedicineHold(dragX, dragY, dt);
+    else if (treatStep === 2) applyBandageHold(dragX, dragY, dt);
+  } else if (currentActivity === 'clean') {
+    if (cleanStep === 1) applyPenteHold(dragX, dragY, dt);
+    else if (cleanStep === 2) applyLencoHold(dragX, dragY, dt);
+  }
   frameId = requestAnimationFrame(holdTick);
 }
 
@@ -307,14 +636,28 @@ document.querySelector('#parent-button').addEventListener('click', () => notify(
 document.querySelectorAll('.patient-card').forEach((card) => card.addEventListener('click', () => {
   const activity = card.dataset.activity;
   if (activity === 'wash') startFaceWashActivity();
+  else if (activity === 'treat') startTreatActivity();
+  else if (activity === 'clean') startCleanActivity();
   else showUpcoming(activity);
 }));
 
 // Toque fora da ferramenta atual: destaca a ferramenta que deve ser usada.
-dentalBoard.addEventListener('pointerdown', (event) => {
-  if (step === 1 && !soapBar.contains(event.target)) showToolHint(soapBar);
-  else if (step === 2 && !dentalHose.contains(event.target)) showToolHint(dentalHose);
-});
+function onBoardPointerDown(event) {
+  const t = event.target;
+  if (currentActivity === 'wash') {
+    if (step === 1 && !soapBar.contains(t)) showToolHint(soapBar);
+    else if (step === 2 && !dentalHose.contains(t)) showToolHint(dentalHose);
+  } else if (currentActivity === 'treat') {
+    if (treatStep === 1 && !medicineTool.contains(t)) showToolHint(medicineTool);
+    else if (treatStep === 2 && !bandageTool.contains(t)) showToolHint(bandageTool);
+  } else if (currentActivity === 'clean') {
+    if (cleanStep === 1 && !penteTool.contains(t)) showToolHint(penteTool);
+    else if (cleanStep === 2 && !lencoTool.contains(t)) showToolHint(lencoTool);
+  }
+}
+dentalBoard.addEventListener('pointerdown', onBoardPointerDown);
+treatBoard.addEventListener('pointerdown', onBoardPointerDown);
+cleanBoard.addEventListener('pointerdown', onBoardPointerDown);
 
 soapBar.addEventListener('pointerdown', (event) => {
   if (step !== 1 || soapBar.classList.contains('tool-off')) return;
@@ -378,6 +721,139 @@ dentalHose.addEventListener('keydown', (event) => {
     soapLevel = soapLevel.map(() => 0);
     updateSpotVisuals();
     finishWash();
+  }
+});
+
+medicineTool.addEventListener('pointerdown', (event) => {
+  if (treatStep !== 1 || medicineTool.classList.contains('tool-off')) return;
+  event.preventDefault();
+  clearToolHints();
+  medicineTool.setPointerCapture(event.pointerId);
+  medicineTool.classList.add('is-dragging');
+  moveMedicineTo(event.clientX, event.clientY);
+  startHold(event.clientX, event.clientY);
+});
+medicineTool.addEventListener('pointermove', (event) => {
+  if (treatStep !== 1 || !medicineTool.classList.contains('is-dragging')) return;
+  moveMedicineTo(event.clientX, event.clientY);
+  moveHold(event.clientX, event.clientY);
+});
+const endMedicineDrag = () => {
+  medicineTool.classList.remove('is-dragging');
+  medicineTool.style.left = '';
+  medicineTool.style.top = '';
+  medicineTool.style.bottom = '';
+  medicineTool.style.transform = '';
+  endHold();
+};
+medicineTool.addEventListener('pointerup', endMedicineDrag);
+medicineTool.addEventListener('pointercancel', endMedicineDrag);
+
+bandageTool.addEventListener('pointerdown', (event) => {
+  if (treatStep !== 2 || bandageTool.classList.contains('tool-off')) return;
+  event.preventDefault();
+  clearToolHints();
+  bandageTool.setPointerCapture(event.pointerId);
+  bandageTool.classList.add('is-dragging');
+  moveBandageTo(event.clientX, event.clientY);
+  startHold(event.clientX, event.clientY);
+});
+bandageTool.addEventListener('pointermove', (event) => {
+  if (treatStep !== 2 || !bandageTool.classList.contains('is-dragging')) return;
+  moveBandageTo(event.clientX, event.clientY);
+  moveHold(event.clientX, event.clientY);
+});
+const endBandageDrag = () => {
+  bandageTool.classList.remove('is-dragging');
+  bandageTool.style.left = '';
+  bandageTool.style.top = '';
+  bandageTool.style.right = '';
+  bandageTool.style.bottom = '';
+  bandageTool.style.transform = '';
+  endHold();
+};
+bandageTool.addEventListener('pointerup', endBandageDrag);
+bandageTool.addEventListener('pointercancel', endBandageDrag);
+medicineTool.addEventListener('keydown', (event) => {
+  if (treatStep === 1 && (event.key === 'Enter' || event.key === ' ')) {
+    injuryLevel = injuryLevel.map(() => 0);
+    medicineLevel = medicineLevel.map(() => 1);
+    updateTreatSpotVisuals();
+    startBandaging();
+  }
+});
+bandageTool.addEventListener('keydown', (event) => {
+  if (treatStep === 2 && (event.key === 'Enter' || event.key === ' ')) {
+    medicineLevel = medicineLevel.map(() => 0);
+    bandageApplied = bandageApplied.map(() => true);
+    allBandages().forEach((b) => b.classList.add('applied'));
+    updateTreatSpotVisuals();
+    finishTreat();
+  }
+});
+
+penteTool.addEventListener('pointerdown', (event) => {
+  if (cleanStep !== 1 || penteTool.classList.contains('tool-off')) return;
+  event.preventDefault();
+  clearToolHints();
+  penteTool.setPointerCapture(event.pointerId);
+  penteTool.classList.add('is-dragging');
+  movePenteTo(event.clientX, event.clientY);
+  startHold(event.clientX, event.clientY);
+});
+penteTool.addEventListener('pointermove', (event) => {
+  if (cleanStep !== 1 || !penteTool.classList.contains('is-dragging')) return;
+  movePenteTo(event.clientX, event.clientY);
+  moveHold(event.clientX, event.clientY);
+});
+const endPenteDrag = () => {
+  penteTool.classList.remove('is-dragging');
+  penteTool.style.left = '';
+  penteTool.style.top = '';
+  penteTool.style.bottom = '';
+  penteTool.style.transform = '';
+  endHold();
+};
+penteTool.addEventListener('pointerup', endPenteDrag);
+penteTool.addEventListener('pointercancel', endPenteDrag);
+
+lencoTool.addEventListener('pointerdown', (event) => {
+  if (cleanStep !== 2 || lencoTool.classList.contains('tool-off')) return;
+  event.preventDefault();
+  clearToolHints();
+  lencoTool.setPointerCapture(event.pointerId);
+  lencoTool.classList.add('is-dragging');
+  moveLencoTo(event.clientX, event.clientY);
+  startHold(event.clientX, event.clientY);
+});
+lencoTool.addEventListener('pointermove', (event) => {
+  if (cleanStep !== 2 || !lencoTool.classList.contains('is-dragging')) return;
+  moveLencoTo(event.clientX, event.clientY);
+  moveHold(event.clientX, event.clientY);
+});
+const endLencoDrag = () => {
+  lencoTool.classList.remove('is-dragging');
+  lencoTool.style.left = '';
+  lencoTool.style.top = '';
+  lencoTool.style.right = '';
+  lencoTool.style.bottom = '';
+  lencoTool.style.transform = '';
+  endHold();
+};
+lencoTool.addEventListener('pointerup', endLencoDrag);
+lencoTool.addEventListener('pointercancel', endLencoDrag);
+penteTool.addEventListener('keydown', (event) => {
+  if (cleanStep === 1 && (event.key === 'Enter' || event.key === ' ')) {
+    twigLevel = twigLevel.map(() => 0);
+    updateCleanSpotVisuals();
+    startLenco();
+  }
+});
+lencoTool.addEventListener('keydown', (event) => {
+  if (cleanStep === 2 && (event.key === 'Enter' || event.key === ' ')) {
+    leafLevel = leafLevel.map(() => 0);
+    updateCleanSpotVisuals();
+    finishClean();
   }
 });
 

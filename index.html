@@ -50,15 +50,15 @@
             <strong>Pipo</strong>
             <span class="need-badge">🧼 Rostinho sujo</span>
           </button>
-          <button class="patient-card patient-bath" type="button" data-activity="bath">
+          <button class="patient-card patient-bath" type="button" data-activity="treat">
             <span class="patient-emoji">🐱</span>
             <strong>Mimi</strong>
-            <span class="need-badge">🛁 Banho</span>
+            <span class="need-badge">🩹 Machucados</span>
           </button>
-          <button class="patient-card patient-diaper" type="button" data-activity="diaper">
+          <button class="patient-card patient-diaper" type="button" data-activity="clean">
             <span class="patient-emoji">🐻</span>
             <strong>Toto</strong>
-            <span class="need-badge">🧷 Fralda</span>
+            <span class="need-badge">� Galhos e folhas</span>
           </button>
         </div>
         <button class="back-button" id="garden-back" type="button">← Voltar</button>
@@ -107,15 +107,68 @@
           </div>
         </div>
 
+        <div class="dental-board treat-board hidden" id="treat-board" aria-label="Área para cuidar dos machucados da Mimi">
+          <div class="face-stage">
+            <div class="mimi-face" aria-label="Mimi com machucadinhos">
+              <span class="mimi-cat" aria-hidden="true">🐱</span>
+              <div class="injury injury-one" aria-hidden="true"></div>
+              <div class="injury injury-two" aria-hidden="true"></div>
+              <div class="injury injury-three" aria-hidden="true"></div>
+              <div class="injury injury-four" aria-hidden="true"></div>
+              <div class="medicine medicine-one" aria-hidden="true"></div>
+              <div class="medicine medicine-two" aria-hidden="true"></div>
+              <div class="medicine medicine-three" aria-hidden="true"></div>
+              <div class="medicine medicine-four" aria-hidden="true"></div>
+              <span class="bandage bandage-one" aria-hidden="true"><span class="bandage-strip"></span></span>
+              <span class="bandage bandage-two" aria-hidden="true"><span class="bandage-strip"></span></span>
+              <span class="bandage bandage-three" aria-hidden="true"><span class="bandage-strip"></span></span>
+              <span class="bandage bandage-four" aria-hidden="true"><span class="bandage-strip"></span></span>
+            </div>
+          </div>
+          <div class="medicine-tool" id="medicine-tool" role="button" tabindex="0" aria-label="Conta-gotas com remédio para os machucados">
+            <span class="dropper-bulb" aria-hidden="true"></span>
+            <span class="dropper-collar" aria-hidden="true"></span>
+            <span class="dropper-tube" aria-hidden="true"></span>
+            <span class="dropper-tip" aria-hidden="true"></span>
+            <span class="dropper-drop" aria-hidden="true"></span>
+          </div>
+          <div class="bandage-tool" id="bandage-tool" role="button" tabindex="0" aria-label="Curativo para colocar no machucado">
+            <span class="bandage-tool-strip" aria-hidden="true"></span>
+          </div>
+        </div>
+
+        <div class="dental-board clean-board hidden" id="clean-board" aria-label="Área para tirar os galhos e as folhas do Toto">
+          <div class="face-stage">
+            <div class="toto-face" aria-label="Toto coberto de galhos e folhas">
+              <span class="toto-bear" aria-hidden="true">🐻</span>
+              <span class="leaf leaf-one" aria-hidden="true"></span>
+              <span class="leaf leaf-two" aria-hidden="true"></span>
+              <span class="leaf leaf-three" aria-hidden="true"></span>
+              <span class="leaf leaf-four" aria-hidden="true"></span>
+              <span class="twig twig-one" aria-hidden="true"></span>
+              <span class="twig twig-two" aria-hidden="true"></span>
+              <span class="twig twig-three" aria-hidden="true"></span>
+              <span class="twig twig-four" aria-hidden="true"></span>
+            </div>
+          </div>
+          <div class="pente-tool" id="pente-tool" role="button" tabindex="0" aria-label="Pente para tirar os galhos">
+            <span class="comb-spine" aria-hidden="true"></span>
+            <span class="comb-teeth" aria-hidden="true"></span>
+          </div>
+          <div class="lenco-tool" id="lenco-tool" role="button" tabindex="0" aria-label="Lenço para limpar o Toto">
+            <span class="tissue" aria-hidden="true"></span>
+          </div>
+        </div>
+
         <div class="activity-actions" id="activity-actions"></div>
       </section>
 
       <section class="screen screen-complete hidden" id="complete-screen" aria-labelledby="complete-title">
         <div class="confetti" aria-hidden="true">🌸 ✨ 🌼 ✨ 🌸</div>
-        <div class="complete-character">🐰</div>
+        <div class="complete-character" id="complete-character">🐰</div>
         <p class="eyebrow">Cuidado terminado!</p>
         <h2 id="complete-title">Pipo está muito feliz!</h2>
-        <p>Você lavou o rostinho dele com muito carinho.</p>
+        <p id="complete-description">Você lavou o rostinho dele com muito carinho.</p>
         <div class="reward">⭐ <span>Uma estrelinha de carinho</span></div>
         <button class="primary-button" id="another-button" type="button">Cuidar de outro bichinho <span>→</span></button>
       </section>
