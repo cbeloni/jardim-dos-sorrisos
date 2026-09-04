@@ -6,6 +6,7 @@ Jogo web infantil, mobile-first, para crianças a partir de 3 anos. Nesta primei
 
 - Node.js 20 ou superior;
 - npm 10 ou superior.
+- Redis 6 ou superior para persistir os cliques.
 
 Confira as versões instaladas:
 
@@ -66,11 +67,29 @@ npm run preview
 
 O resultado do build fica na pasta `dist/`.
 
+## Contadores dos bichinhos
+
+Cada clique em um card do jardim é registrado pela API e persistido no Redis. Em desenvolvimento, execute a API e o Vite em terminais separados:
+
+```bash
+npm run api
+npm run dev
+```
+
+O endereço do Redis pode ser configurado por ambiente:
+
+```bash
+REDIS_HOST=redis.exemplo.local REDIS_PORT=6379 npm run api
+```
+
+Se `REDIS_HOST` não estiver preenchida, a API usa `redis.default.svc.cluster.local`. Também é possível informar uma URL completa com `REDIS_URL`, que tem prioridade sobre `REDIS_HOST` e `REDIS_PORT`.
+
 ## Estrutura atual
 
 - `index.html`: telas e marcação principal do jogo;
 - `styles.css`: identidade visual e layout responsivo;
 - `app.js`: navegação e lógica da atividade dental;
+- `server.js`: API dos contadores e conexão com Redis;
 - `manifest.webmanifest`: configuração inicial de PWA;
 - `sw.js`: cache inicial para uso offline;
 - `package.json`: scripts para desenvolvimento e build com Vite.
@@ -80,7 +99,7 @@ O resultado do build fica na pasta `dist/`.
 ## Observações
 
 - O service worker só funciona quando a aplicação é servida por HTTP; abrir `index.html` diretamente como arquivo não ativa o modo offline.
-- O jogo não possui backend, banco de dados, login ou coleta de dados.
+- O jogo não possui login nem coleta de dados pessoais; os contadores dos bichinhos são persistidos no Redis.
 - A estrutura usa tecnologias web comuns para facilitar um futuro empacotamento Android com Capacitor.
 - Ainda estão pendentes as atividades de banho, troca de fralda e a criação de ícones finais do PWA.
 

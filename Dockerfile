@@ -6,8 +6,15 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# Estágio 2: servidor nginx para os arquivos estáticos
-FROM nginx:1.27-alpine
+# Estágio 2: servidor nginx + API Node
+FROM node:20-alpine
+RUN apk add --no-cache nginx
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
+COPY server.js ./server.js
 EXPOSE 80
+EXPOSE 3000
+CMD ["sh", "-c", "node server.js & exec nginx -g 'daemon off;'"]

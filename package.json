@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "api": "node server.js",
     "build": "vite build",
     "preview": "vite preview",
     "cap:sync": "npm run build && cap sync",
@@ -19,6 +20,7 @@
   },
   "dependencies": {
     "@capacitor/android": "^7.0.0",
-    "@capacitor/core": "^7.0.0"
+    "@capacitor/core": "^7.0.0",
+    "redis": "^5.8.2"
   }
 }

@@ -22,6 +22,8 @@ const bandageTool = document.querySelector('#bandage-tool');
 const cleanBoard = document.querySelector('#clean-board');
 const penteTool = document.querySelector('#pente-tool');
 const lencoTool = document.querySelector('#lenco-tool');
+const patientCards = document.querySelectorAll('.patient-card');
+const clickCountLabels = document.querySelectorAll('[data-click-count]');
 let step = 0;
 let dirtLevel = [];
 let soapLevel = [];
@@ -40,6 +42,33 @@ let bandageApplied = [];
 let cleanStep = 0;
 let leafLevel = [];
 let twigLevel = [];
+
+function renderClickCount(animalId, count) {
+  const label = document.querySelector(`[data-click-count="${animalId}"]`);
+  if (label) label.textContent = `Cliques: ${count}`;
+}
+
+async function loadClickCounts() {
+  try {
+    const response = await fetch('/api/animals/counts');
+    if (!response.ok) throw new Error('Falha ao carregar contadores.');
+    const counts = await response.json();
+    Object.entries(counts).forEach(([animalId, count]) => renderClickCount(animalId, count));
+  } catch {
+    clickCountLabels.forEach((label) => { label.textContent = 'Cliques: —'; });
+  }
+}
+
+async function registerAnimalClick(animalId) {
+  try {
+    const response = await fetch(`/api/animals/${animalId}/click`, { method: 'POST' });
+    if (!response.ok) throw new Error('Falha ao registrar clique.');
+    const { count } = await response.json();
+    renderClickCount(animalId, count);
+  } catch {
+    notify('Não foi possível registrar o clique.');
+  }
+}
 
 function showScreen(name) {
   Object.entries(screens).forEach(([key, screen]) => screen.classList.toggle('hidden', key !== name));
@@ -98,7 +127,7 @@ const allDirt = () => document.querySelectorAll('.dirt');
 const allSoap = () => document.querySelectorAll('.soap');
 // Tempo para ensaboar ou enxaguar cada manchinha (fração por milissegundo).
 const TOOL_RATE = 1 / 1000;
-const DRAG_POINTER_OFFSET_Y = 18;
+const DRAG_POINTER_OFFSET_Y = 12;
 const DENTAL_HOSE_WIDTH = 170;
 const dirtRotations = ['-14deg', '16deg', '-8deg', '10deg'];
 
@@ -240,11 +269,10 @@ function applySoapHold(clientX, clientY, dt) {
 function applyRinseHold(clientX, clientY, dt) {
   if (step !== 2) return;
   let changed = false;
-  // A água sai pela ponta esquerda da mangueira, então é lá que se limpa.
-  const aimX = clientX - DENTAL_HOSE_WIDTH / 2;
+  // A água sai pela ponta esquerda da mangueira (ponto de ação da ferramenta).
   allDirt().forEach((dirt, index) => {
     if (soapLevel[index] <= 0) return;
-    if (!spotHitTest(index, aimX, clientY, allDirt())) return;
+    if (!spotHitTest(index, clientX, clientY, allDirt())) return;
     soapLevel[index] = Math.max(0, soapLevel[index] - TOOL_RATE * dt);
     if (soapLevel[index] <= 0) spawnSpotStars(index);
     changed = true;
@@ -352,9 +380,9 @@ function moveMedicineTo(clientX, clientY) {
   const rect = treatBoard.getBoundingClientRect();
   const x = clientX - rect.left;
   const y = clientY - rect.top;
-  // O conta-gotas fica acima do dedo; o cursor fica um pouco abaixo.
+  // O conta-gotas acompanha o dedo (centro perto do cursor); a gota cai na ponta.
   medicineTool.style.left = `${x - 30}px`;
-  medicineTool.style.top = `${y - 122}px`;
+  medicineTool.style.top = `${y - 60}px`;
   medicineTool.style.right = 'auto';
   medicineTool.style.bottom = 'auto';
   medicineTool.style.transform = 'rotate(-8deg) scale(1.1)';
@@ -364,9 +392,9 @@ function moveBandageTo(clientX, clientY) {
   const rect = treatBoard.getBoundingClientRect();
   const x = clientX - rect.left;
   const y = clientY - rect.top;
-  // O curativo fica acima do dedo; o cursor fica um pouco abaixo.
+  // O curativo acompanha o dedo (centro perto do cursor).
   bandageTool.style.left = `${x - 48}px`;
-  bandageTool.style.top = `${y - 58}px`;
+  bandageTool.style.top = `${y - 36}px`;
   bandageTool.style.right = 'auto';
   bandageTool.style.bottom = 'auto';
   bandageTool.style.transform = 'rotate(-12deg) scale(1.15)';
@@ -375,9 +403,16 @@ function moveBandageTo(clientX, clientY) {
 function applyMedicineHold(clientX, clientY, dt) {
   if (treatStep !== 1) return;
   let changed = false;
+  // A gota cai na ponta (ponto de ação); aceita também o centro do conta-gotas.
+  const rect = medicineTool.getBoundingClientRect();
+  const boardRect = treatBoard.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2 - boardRect.left;
+  const centerY = rect.top + rect.height / 2 - boardRect.top;
   allInjuries().forEach((inj, index) => {
     if (injuryLevel[index] <= 0) return;
-    if (!spotHitTest(index, clientX, clientY, allInjuries())) return;
+    const onTip = spotHitTest(index, clientX, clientY, allInjuries());
+    const onBody = spotHitTest(index, centerX, centerY, allInjuries());
+    if (!onTip && !onBody) return;
     const wasDone = medicineLevel[index] >= 1;
     const amount = TOOL_RATE * dt;
     injuryLevel[index] = Math.max(0, injuryLevel[index] - amount);
@@ -498,9 +533,9 @@ function movePenteTo(clientX, clientY) {
   const rect = cleanBoard.getBoundingClientRect();
   const x = clientX - rect.left;
   const y = clientY - rect.top;
-  // O pente fica acima do dedo; o cursor fica um pouco abaixo.
+  // O pente acompanha o dedo (centro perto do cursor).
   penteTool.style.left = `${x - 30}px`;
-  penteTool.style.top = `${y - 60}px`;
+  penteTool.style.top = `${y - 34}px`;
   penteTool.style.right = 'auto';
   penteTool.style.bottom = 'auto';
   penteTool.style.transform = 'rotate(-8deg) scale(1.1)';
@@ -510,9 +545,9 @@ function moveLencoTo(clientX, clientY) {
   const rect = cleanBoard.getBoundingClientRect();
   const x = clientX - rect.left;
   const y = clientY - rect.top;
-  // O lenço fica acima do dedo; o cursor fica um pouco abaixo.
+  // O lenço acompanha o dedo (centro perto do cursor).
   lencoTool.style.left = `${x - 30}px`;
-  lencoTool.style.top = `${y - 66}px`;
+  lencoTool.style.top = `${y - 40}px`;
   lencoTool.style.right = 'auto';
   lencoTool.style.bottom = 'auto';
   lencoTool.style.transform = 'rotate(-8deg) scale(1.1)';
@@ -600,19 +635,44 @@ function endHold() {
   }
 }
 
+// Ponto de ação da ferramenta (onde ela efetivamente toca o objeto), em coordenadas do tabuleiro.
+// Cada ferramenta tem uma âncora dentro do próprio retângulo (fração da largura/altura).
+function getToolActionPoint() {
+  const board = currentActivity === 'treat' ? treatBoard : (currentActivity === 'clean' ? cleanBoard : dentalBoard);
+  const boardRect = board.getBoundingClientRect();
+  let tool;
+  let fx = 0.5;
+  let fy = 0.5;
+  if (currentActivity === 'wash') {
+    if (step === 1) tool = soapBar;
+    else { tool = dentalHose; fx = 0; fy = 0.35; } // a água sai pela ponta esquerda da mangueira
+  } else if (currentActivity === 'treat') {
+    tool = treatStep === 1 ? medicineTool : bandageTool;
+    if (treatStep === 1) fy = 1; // a gota cai da ponta do conta-gotas
+  } else {
+    tool = cleanStep === 1 ? penteTool : lencoTool;
+  }
+  const rect = tool.getBoundingClientRect();
+  return {
+    x: rect.left + rect.width * fx - boardRect.left,
+    y: rect.top + rect.height * fy - boardRect.top,
+  };
+}
+
 function holdTick(now) {
   if (!dragActive) return;
   const dt = Math.min(now - lastFrame, 50);
   lastFrame = now;
+  const { x, y } = getToolActionPoint();
   if (currentActivity === 'wash') {
-    if (step === 1) applySoapHold(dragX, dragY, dt);
-    else if (step === 2) applyRinseHold(dragX, dragY, dt);
+    if (step === 1) applySoapHold(x, y, dt);
+    else if (step === 2) applyRinseHold(x, y, dt);
   } else if (currentActivity === 'treat') {
-    if (treatStep === 1) applyMedicineHold(dragX, dragY, dt);
-    else if (treatStep === 2) applyBandageHold(dragX, dragY, dt);
+    if (treatStep === 1) applyMedicineHold(x, y, dt);
+    else if (treatStep === 2) applyBandageHold(x, y, dt);
   } else if (currentActivity === 'clean') {
-    if (cleanStep === 1) applyPenteHold(dragX, dragY, dt);
-    else if (cleanStep === 2) applyLencoHold(dragX, dragY, dt);
+    if (cleanStep === 1) applyPenteHold(x, y, dt);
+    else if (cleanStep === 2) applyLencoHold(x, y, dt);
   }
   frameId = requestAnimationFrame(holdTick);
 }
@@ -633,13 +693,16 @@ document.querySelector('#sound-toggle').addEventListener('click', (event) => {
 });
 document.querySelector('#parent-button').addEventListener('click', () => notify('Área dos responsáveis em breve.'));
 
-document.querySelectorAll('.patient-card').forEach((card) => card.addEventListener('click', () => {
+patientCards.forEach((card) => card.addEventListener('click', () => {
+  registerAnimalClick(card.dataset.animalId);
   const activity = card.dataset.activity;
   if (activity === 'wash') startFaceWashActivity();
   else if (activity === 'treat') startTreatActivity();
   else if (activity === 'clean') startCleanActivity();
   else showUpcoming(activity);
 }));
+
+loadClickCounts();
 
 // Toque fora da ferramenta atual: destaca a ferramenta que deve ser usada.
 function onBoardPointerDown(event) {

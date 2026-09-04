@@ -26,6 +26,7 @@ Legenda: `[x]` concluído · `[/]` em andamento · `[ ]` pendente
 - [x] Usar o rosto de referência como base interativa da atividade de limpeza.
 - [x] Remover estetoscópio do rosto e reposicionar a sujeira somente dentro da face.
 - [x] Validar sintaxe do JavaScript e conferir os arquivos gerados.
+- [x] Implementar contador persistente de cliques por bichinho usando Redis configurável por ambiente.
 
 ## Próximas tarefas
 
@@ -110,3 +111,12 @@ Legenda: `[x]` concluído · `[/]` em andamento · `[ ]` pendente
 - Os cards do jardim passaram a usar `patient-emoji` (emojis); adicionada regra de tamanho: 110px no desktop e 80px no mobile.
 - Altura mínima dos cards aumentada (240px desktop / 205px mobile) para acomodar os emojis maiores.
 - Validado no navegador: emojis maiores sem estourar os cards (desktop e mobile).
+
+### 2026-09-03 — Contadores de cliques dos bichinhos
+
+- Adicionados contadores visíveis nos cards de Pipo, Mimi e Toto.
+- Criada a API Node em `server.js` com `GET /api/animals/counts` e `POST /api/animals/:animalId/click`.
+- Cada contador usa `INCR` em uma chave própria do Redis para manter os cliques de forma atômica.
+- A conexão usa `REDIS_URL` quando informada; caso contrário, usa `REDIS_HOST`, `REDIS_PORT` e o host padrão `redis.default.svc.cluster.local`.
+- Configurados proxy do Vite, proxy do nginx e imagem Docker para servir frontend e API juntos.
+- Validados `node --check server.js`, `node --check app.js`, `npm run build` e `git diff --check`; Redis não foi iniciado nem acessado localmente.
