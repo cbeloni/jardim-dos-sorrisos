@@ -3,7 +3,10 @@ import { createClient } from 'redis';
 
 const PORT = Number(process.env.PORT || 3000);
 const REDIS_HOST = process.env.REDIS_HOST || 'redis.default.svc.cluster.local';
-const REDIS_PORT = Number(process.env.REDIS_PORT || 6379);
+const configuredRedisPort = Number.parseInt(process.env.REDIS_PORT, 10);
+const REDIS_PORT = Number.isInteger(configuredRedisPort) && configuredRedisPort > 0
+  ? configuredRedisPort
+  : 6379;
 const REDIS_URL = process.env.REDIS_URL || `redis://${REDIS_HOST}:${REDIS_PORT}`;
 const ANIMALS = ['pipo', 'mimi', 'toto'];
 const redis = createClient({ url: REDIS_URL });
