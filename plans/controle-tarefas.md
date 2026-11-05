@@ -25,6 +25,8 @@ Legenda: `[x]` concluído · `[/]` em andamento · `[ ]` pendente
 - [x] Remover corpos e roupas dos bichinhos, restaurando a apresentação original.
 - [x] Usar o rosto de referência como base interativa da atividade de limpeza.
 - [x] Remover estetoscópio do rosto e reposicionar a sujeira somente dentro da face.
+- [x] Ajustar o posicionamento responsivo do gato e do urso para smartphone, tablet e desktop.
+- [x] Corrigir a conversão de coordenadas do ponto de ação para atingir os machucados corretamente.
 - [x] Validar sintaxe do JavaScript e conferir os arquivos gerados.
 - [x] Implementar contador persistente de cliques por bichinho usando Redis configurável por ambiente.
 

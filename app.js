@@ -24,6 +24,8 @@ const penteTool = document.querySelector('#pente-tool');
 const lencoTool = document.querySelector('#lenco-tool');
 const patientCards = document.querySelectorAll('.patient-card');
 const clickCountLabels = document.querySelectorAll('[data-click-count]');
+const API_ENABLED = import.meta.env.VITE_ENABLE_API === 'true';
+const LOCAL_COUNTS_KEY = 'jardim-dos-sorrisos-click-counts';
 let step = 0;
 let dirtLevel = [];
 let soapLevel = [];
@@ -48,25 +50,56 @@ function renderClickCount(animalId, count) {
   if (label) label.textContent = `Cliques: ${count}`;
 }
 
+function readLocalClickCounts() {
+  try {
+    return JSON.parse(localStorage.getItem(LOCAL_COUNTS_KEY) || '{}');
+  } catch {
+    return {};
+  }
+}
+
+function writeLocalClickCounts(counts) {
+  localStorage.setItem(LOCAL_COUNTS_KEY, JSON.stringify(counts));
+}
+
+function renderLocalClickCounts() {
+  const counts = readLocalClickCounts();
+  ['pipo', 'mimi', 'toto'].forEach((animalId) => renderClickCount(animalId, counts[animalId] || 0));
+}
+
 async function loadClickCounts() {
+  if (!API_ENABLED) {
+    renderLocalClickCounts();
+    return;
+  }
   try {
     const response = await fetch('/api/animals/counts');
     if (!response.ok) throw new Error('Falha ao carregar contadores.');
     const counts = await response.json();
     Object.entries(counts).forEach(([animalId, count]) => renderClickCount(animalId, count));
   } catch {
-    clickCountLabels.forEach((label) => { label.textContent = 'Cliques: —'; });
+    renderLocalClickCounts();
   }
 }
 
 async function registerAnimalClick(animalId) {
+  if (!API_ENABLED) {
+    const counts = readLocalClickCounts();
+    counts[animalId] = (counts[animalId] || 0) + 1;
+    writeLocalClickCounts(counts);
+    renderClickCount(animalId, counts[animalId]);
+    return;
+  }
   try {
     const response = await fetch(`/api/animals/${animalId}/click`, { method: 'POST' });
     if (!response.ok) throw new Error('Falha ao registrar clique.');
     const { count } = await response.json();
     renderClickCount(animalId, count);
   } catch {
-    notify('Não foi possível registrar o clique.');
+    const counts = readLocalClickCounts();
+    counts[animalId] = (counts[animalId] || 0) + 1;
+    writeLocalClickCounts(counts);
+    renderClickCount(animalId, counts[animalId]);
   }
 }
 
@@ -190,7 +223,9 @@ function moveHoseTo(clientX, clientY) {
   dentalHose.style.bottom = 'auto';
 }
 
-function spotHitTest(index, clientX, clientY, spots) {
+// Recebe o ponto da ferramenta em coordenadas locais do tabuleiro.
+// O retângulo do alvo também é convertido para a mesma referência.
+function spotHitTest(index, localX, localY, spots) {
   const board = currentActivity === 'treat' ? treatBoard : (currentActivity === 'clean' ? cleanBoard : dentalBoard);
   const boardRect = board.getBoundingClientRect();
   const spot = spots[index];
@@ -198,9 +233,7 @@ function spotHitTest(index, clientX, clientY, spots) {
   const rect = spot.getBoundingClientRect();
   const sx = rect.left - boardRect.left;
   const sy = rect.top - boardRect.top;
-  const lx = clientX - boardRect.left;
-  const ly = clientY - boardRect.top;
-  return lx >= sx - 28 && lx <= sx + rect.width + 28 && ly >= sy - 28 && ly <= sy + rect.height + 28;
+  return localX >= sx - 28 && localX <= sx + rect.width + 28 && localY >= sy - 28 && localY <= sy + rect.height + 28;
 }
 
 function updateSpotVisuals() {
