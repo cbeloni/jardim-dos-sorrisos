@@ -24,6 +24,7 @@ const penteTool = document.querySelector('#pente-tool');
 const lencoTool = document.querySelector('#lenco-tool');
 const patientCards = document.querySelectorAll('.patient-card');
 const clickCountLabels = document.querySelectorAll('[data-click-count]');
+const remainingProgressFill = document.querySelector('#remaining-progress-fill');
 const API_ENABLED = import.meta.env.VITE_ENABLE_API === 'true';
 const LOCAL_COUNTS_KEY = 'jardim-dos-sorrisos-click-counts';
 let step = 0;
@@ -116,6 +117,16 @@ function notify(message) {
   toast.textContent = message;
   toast.classList.remove('hidden');
   window.setTimeout(() => toast.classList.add('hidden'), 1800);
+}
+
+function updateRemainingProgress() {
+  let values = [];
+  if (currentActivity === 'wash') values = step === 2 ? soapLevel : dirtLevel;
+  else if (currentActivity === 'treat') values = treatStep === 2 ? medicineLevel : injuryLevel;
+  else if (currentActivity === 'clean') values = cleanStep === 2 ? leafLevel : twigLevel;
+  const remaining = values.length ? values.reduce((total, value) => total + value, 0) / values.length : 0;
+  const percentage = Math.round(Math.max(0, Math.min(1, remaining)) * 100);
+  if (remainingProgressFill) remainingProgressFill.style.height = `${percentage}%`;
 }
 
 // Destaque de "toque aqui" quando a criança toca fora da ferramenta atual.
@@ -248,6 +259,7 @@ function updateSpotVisuals() {
       soapEls[index].style.transform = `scale(${0.3 + 0.7 * s})`;
     }
   });
+  updateRemainingProgress();
 }
 
 function updateToolAvailability() {
@@ -323,6 +335,7 @@ function startRinsing() {
   clearToolHints();
   resetTool(soapBar);
   updateToolAvailability();
+  updateRemainingProgress();
   instruction.textContent = 'Agora arraste a mangueirinha para tirar a espuma!';
   activityActions.innerHTML = '';
   makeProgress(3, 1);
@@ -377,6 +390,7 @@ function updateTreatSpotVisuals() {
     }
     if (bandEls[index] && bandageApplied[index]) bandEls[index].classList.add('applied');
   });
+  updateRemainingProgress();
 }
 
 function updateTreatToolAvailability() {
@@ -486,6 +500,7 @@ function startBandaging() {
   clearToolHints();
   resetTreatTools();
   updateTreatToolAvailability();
+  updateRemainingProgress();
   instruction.textContent = 'Agora coloque o curativo sobre cada machucado!';
   activityActions.innerHTML = '';
   makeProgress(3, 1);
@@ -532,6 +547,7 @@ function updateCleanSpotVisuals() {
       twigEls[index].style.transform = `scale(${0.5 + 0.5 * t})`;
     }
   });
+  updateRemainingProgress();
 }
 
 function updateCleanToolAvailability() {
@@ -627,6 +643,7 @@ function startLenco() {
   clearToolHints();
   resetCleanTools();
   updateCleanToolAvailability();
+  updateRemainingProgress();
   instruction.textContent = 'Agora passe o lenço para tirar as folhas!';
   activityActions.innerHTML = '';
   makeProgress(3, 1);

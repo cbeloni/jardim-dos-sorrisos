@@ -27,6 +27,8 @@ Legenda: `[x]` concluído · `[/]` em andamento · `[ ]` pendente
 - [x] Remover estetoscópio do rosto e reposicionar a sujeira somente dentro da face.
 - [x] Ajustar o posicionamento responsivo do gato e do urso para smartphone, tablet e desktop.
 - [x] Corrigir a conversão de coordenadas do ponto de ação para atingir os machucados corretamente.
+- [x] Adicionar barra lateral de progresso restante para orientar a criança durante os cuidados.
+- [x] Simplificar a barra de progresso para uma única cor, sem porcentagem visível.
 - [x] Validar sintaxe do JavaScript e conferir os arquivos gerados.
 - [x] Implementar contador persistente de cliques por bichinho usando Redis configurável por ambiente.
 
